@@ -2,6 +2,8 @@
 # coding=utf-8
 import sys
 import pyxb
+import pyxb.binding.basis
+#import fish
 import citygml.appearance_1_0
 import citygml.building_1_0
 import citygml.cgml
@@ -29,12 +31,13 @@ import citygml.vegetation_2_0
 import citygml.waterBody_2_0
 
 def data_read():
-    input = sys.stdin
-    t = input.readline()
-    if t:
-        pathes = t.split()
+    #input = sys.stdin
+    #t = input.readline()
+    #if t:
+    #   pathes = t.split()
+    if sys.argv[1:]:
+        pathes = sys.argv[1:]
     else:
-        print "No input file!"
         return
     dataset = []
     for i in pathes:
@@ -66,13 +69,16 @@ if __name__ == "__main__":
         print "processing data %s" % data._location().locationBase
         if type(data)!=citygml.cgmlbase_1_0.CityModelType and \
            type(data)!=citygml.cgmlbase_2_0.CityModelType:
+            print "skip this data"
             continue
+        #fish = fish.ProgressFish(total=len(data.content()))
+        print "Feature_Count in CityModel: %s" % len(data.content())
         for value in data.content():
             if type(value)==citygml._gml.FeaturePropertyType:
                 feature_count+=1
                 feature_type = type(value.Feature)._Name().split('}')
                 if not feature_type or len(feature_type)!=2:
-                    print feature_type,value.Feature
+                    print "feature_type problem",feature_type,value.Feature
                     continue
                 f_type = feature_type[1]
                 if not feature_property.has_key(f_type):
@@ -80,6 +86,7 @@ if __name__ == "__main__":
                     print "Insert key %s" % f_type
                 feature_property[f_type]+=1
         print "%s has been processed completely!" % data._location().locationBase
-        print "the amount of all cityobjects is %d" % feature_count
+        print "the amount of all thematic objects is %d" % feature_count
         for k in feature_property.keys():
             print "%s: %d" % (k,feature_property[k])
+        print '\n'
