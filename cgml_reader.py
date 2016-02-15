@@ -55,6 +55,54 @@ def cgml2class(xml_path):
         print e.details()
     return cgml_model
 
+def Building_push(dataset):
+    pass
+
+def Building_output(data):
+    for value in data.content():
+        if type(value)!=citygml._gml.FeaturePropertyType:
+            continue
+        if type(value.Feature)!=citygml.building_2_0.BuildingType:
+            continue
+        building = value.Feature
+        fid = building.id
+        if building.lod1Solid:
+            Parsing_Solid(building.lod1Solid.Solid)
+        elif building.lod2Solid:
+            Parsing_Solid(building.lod2Solid.Solid)
+        elif building.lod3Solid:
+            Parsing_Solid(building.lod3Solid.Solid)
+        elif building.lod4Solid:
+            Parsing_Solid(building.lod4Solid.Solid)
+
+        for f in building.content():
+            if type(f)!=citygml.building_2_0.BoundarySurfacePropertyType:
+                continue
+            role = str(f.BoundarySurface._element().name().localName())
+            if f.BoundarySurface.lod2MultiSurface:
+                if f.BoundarySurface.lod2MultiSurface.MultiSurface:
+                    for ms in f.BoundarySurface.lod2MultiSurface.MultiSurface.content():
+                        Parsing_BoundarySurface(ms,role,fid)
+
+def Parsing_BoundarySurface(BS):
+
+
+def Parsing_Solid(Solid):
+    if type(Solid.exterior) == citygml._gml.SurfacePropertyType:
+        if type(Solid.exterior.Surface) == citygml._gml.CompositeSurfaceType:
+            for surface in Solid.exterior.Surface.content():
+                Parsing_Surface(surface)
+        else:
+            raise ValueError("not compositesurface %s" % str(type(Solid.exterior.Surface)))
+
+def Parsing_Surface(surface):
+
+
+tolerance = 0.01
+points = []
+polys = dict()
+solids = dict()
+buildings = dict()
 if __name__ == "__main__":
     dataset = data_read()
     print "Files reading completely!"
