@@ -19,15 +19,11 @@ class Point(object):
 
 class Polygon(object):
 
-    def __init__(self,poslist=[],fid=[],polyid=None,bound='ex',role=None):
+    def __init__(self,poslist=[],fid=[],polyid=None,role=None):
         self.poslist = poslist
         self.fid = fid
         self.polyid = polyid
-        self.bound = bound
         self.role = role
-    
-    def set_bound(self,bound):
-        self.bound = bound
 
     def set_role(self,role):
         self.role = role
@@ -66,20 +62,39 @@ class Polygon(object):
         return (x/magnitude, y/magnitude, z/magnitude)
 
     def orient(self):
-        self.normal = self.unit_normal(self.poslist[0],self.poslist[1],self.poslist[2])
+        self.normal = self.unit_normal(self.poslist[0][0],self.poslist[0][1],self.poslist[0][2])
         return self.normal
 
-class Solid(object):
-
-    def __init__(self,polylist=[],solidid=None,fid=None,role=None,bound='ex'):
+class Shell(object):
+    
+    def __init__(self,polylist=[],shellid=None,fid=None,role=None):
         self.polylist = polylist
-        self.solidid = solidid
+        self.shellid = shellid
         self.fid = fid
         self.role = role
-        self.bound = bound
 
     def add_poly(self,poly):
         self.polylist.append(poly)
+
+    def set_shellid(self,shellid):
+        self.shellid = shellid
+
+    def set_fid(self,fid):
+        self.fid = fid
+
+    def set_role(self,role):
+        self.role = role
+
+class Solid(object):
+
+    def __init__(self,shelllist=[],solidid=None,fid=None,role=None):
+        self.shelllist = shelllist
+        self.solidid = solidid
+        self.fid = fid
+        self.role = role
+
+    def add_shell(self,shell):
+        self.shelllist.append(shell)
     
     def set_solidid(self,solidid):
         self.solidid = solidid
@@ -89,9 +104,6 @@ class Solid(object):
 
     def set_role(self,role):
         self.role = role
-
-    def set_bound(self,bound):
-        self.bound = bound
 
 class Feature(object):
     
@@ -111,8 +123,12 @@ class Feature(object):
 
 class Building(Feature):
 
-    def __init__(self,solids=[],surfaces=[],fid=None):
+    def __init__(self,buildingparts=[],solids=[],surfaces=[],fid=None):
         self.solids = solids
         self.surfaces = surfaces
         self.fid = fid
+        self.buildingparts = buildingparts
+    
+    def add_buildingpart(self,buildingpart):
+        self.buildingparts.append(buildingpart)
 
