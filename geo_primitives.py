@@ -38,7 +38,7 @@ class Polygon(object):
         self.polyid = polyid
 
     def add_pos(self,pos):
-        self.poslist.add(pos)
+        self.poslist.append(pos)
 
     def det(a):
         return a[0][0]*a[1][1]*a[2][2] + a[0][1]*a[1][2]*a[2][0] + a[0][2]*a[1][0]*a[2][1] - a[0][2]*a[1][1]*a[2][0] - a[0][1]*a[1][0]*a[2][2] - a[0][0]*a[1][2]*a[2][1]
@@ -119,7 +119,7 @@ class Feature(object):
         self.surfaces.append(surfaces)
 
     def set_fid(self,fid):
-        self.fid.append(fid)
+        self.fid = fid
 
 class Building(Feature):
 

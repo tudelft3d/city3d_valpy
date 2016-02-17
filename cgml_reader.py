@@ -68,14 +68,14 @@ def Building_output(data):
            type(value.Feature)!=citygml.building_1_0.BuildingType:
             continue
         building = value.Feature
-        Parsing_Building(building)
+        fid = Parsing_Building(building)
+        print fid
 
 def Parsing_Building(building):
-    fid = building.id
+    fid = str(building.id)
     bgobj = Building()
     for f in building.content():
-        if type(f)==citygml.building_2_0.BoundarySurfacePropertyType or \
-           type(f)==citygml.building_1_0.BoundarySurfacePropertyType:
+        if type(f)==citygml.building_2_0.BoundarySurfacePropertyType or type(f)==citygml.building_1_0.BoundarySurfacePropertyType:
             role = str(f.BoundarySurface._element().name().localName())
             if f.BoundarySurface.lod2MultiSurface:
                 if f.BoundarySurface.lod2MultiSurface.MultiSurface:
@@ -92,10 +92,8 @@ def Parsing_Building(building):
                     for ms in f.BoundarySurface.lod4MultiSurface.MultiSurface.content():
                         if type(ms)==citygml._gml.SurfacePropertyType:
                             bgobj.add_surfaces(Parsing_Surface(ms,role,fid))
-
-        elif type(f)==citygml.building_1_0.BuildingPartPropertyType or \
-             type(f)==citygml.building_2_0.BuildingPartPropertyType:
-            bgobj.add_buildingpart(Parsing_Building(f.BuildingPart)
+        elif type(f)==citygml.building_1_0.BuildingPartPropertyType or type(f)==citygml.building_2_0.BuildingPartPropertyType:
+            bgobj.add_buildingpart(Parsing_Building(f.BuildingPart))
 
     if building.lod1Solid:
         bgobj.add_solid(Parsing_Solid(building.lod1Solid.Solid,fid))
@@ -112,46 +110,55 @@ def Parsing_Building(building):
 def Parsing_BoundarySurface(BS):
     pass
 
-def Parsing_Solid(Solid,fid):
+def Parsing_Solid(Solid3D,fid):
 #    if type(Solid.exterior) == citygml._gml.SurfacePropertyType:
 #        Parsing_Surface(Solid.exterior)
 #    if type(Solid.interior) == citygml._gml.SurfacePropertyType:
 #        Parsing_Surface(Solid.interior)
     solid = Solid()
     solid.set_fid(fid)
-    for sh in Solid.content():
+    for sh in Solid3D.content():
         if type(sh) == citygml._gml.SurfacePropertyType:
             solid.add_shell(Parsing_Surface(sh))
+    if solids.has_key(fid):
+        solids[fid].append(solid)
+    else:
+        solids[fid] = [solid]
     return solid
 
 def Parsing_Surface(surface,role=None,fid=None):
     if type(surface.Surface) == citygml._gml.CompositeSurfaceType:
-        composid = surface.Surface.id
+        composid = str(surface.Surface.id)
         if composid==None:
             composid = str(uuid.uuid1()) 
         shell = Shell()
         shell.set_shellid(composid)
-        for s in surface.content():
-            shell.add_poly(Parsing_Surface(s,role,fid))
+        for s in surface.Surface.content():
+            if type(s) == citygml._gml.SurfacePropertyType:
+                shell.add_poly(Parsing_Surface(s,role,fid))
         shells[composid] = shell
         return composid
     elif type(surface.Surface) == citygml._gml.PolygonType:
         polyid = str(surface.Surface.id)
+        #print polyid
         if polys.has_key(polyid):
             if polys[polyid]:
                 return polyid
         poly = Polygon()
         for p in surface.Surface.content():
             if type(p) == citygml._gml.AbstractRingPropertyType:
-            poslist = p.Ring.posList.value()
-            poly.add_pos(poslist)
+                #poslist = p.Ring.posList.value()
+                poslist = []
+                for pos in p.Ring.content():
+                    poslist.extend(pos.value())
+                poly.add_pos(poslist)
         poly.set_role(role)
-        poly.set_fid(fid)
+        poly.add_fid(fid)
         polys[polyid]=poly
         #poly.orient()
         return polyid
     elif surface.Surface == None:
-        xlink = surface.href
+        xlink = str(surface.href)
         return xlink
     else:
         raise ValueError("Surface error")
