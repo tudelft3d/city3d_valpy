@@ -3,10 +3,10 @@
 
 class Point(object):
 
-    def __init__(self,pos=(0,0,0),fid=[],polyid=[]):
-        self.pos = pos
-        self.fid = fid
-        self.polyid = polyid
+    def __init__(self):
+        self.pos = (0,0,0)
+        self.fid = list()
+        self.polyid = list()
 
     def set_pos(self,pos):
         self.pos = pos
@@ -19,11 +19,13 @@ class Point(object):
 
 class Polygon(object):
 
-    def __init__(self,poslist=[],fid=[],polyid=None,role=None):
-        self.poslist = poslist
-        self.fid = fid
-        self.polyid = polyid
-        self.role = role
+    def __init__(self):
+        self.poslist = list()
+        self.fid = list()
+        self.polyid = None
+        self.role = None
+        self.valid = True
+        self.validinfo = None
 
     def set_role(self,role):
         self.role = role
@@ -40,38 +42,44 @@ class Polygon(object):
     def add_pos(self,pos):
         self.poslist.append(pos)
 
-    def det(a):
-        return a[0][0]*a[1][1]*a[2][2] + a[0][1]*a[1][2]*a[2][0] + a[0][2]*a[1][0]*a[2][1] - a[0][2]*a[1][1]*a[2][0] - a[0][1]*a[1][0]*a[2][2] - a[0][0]*a[1][2]*a[2][1]
+    def set_valid(self,valid_flag):
+        self.valid = valid_flag
 
-    def unit_normal(a,b,c):
-        x = det([[1,a[1],a[2]],
-                 [1,b[1],b[2]],
-                 [1,c[1],c[2]]])
+    def set_validinfo(self,validinfo):
+        self.validinfo = validinfo
 
-        y = det([[1,a[1],a[2]],
-                 [1,b[1],b[2]],
-                 [1,c[1],c[2]]])
+    # def det(a):
+    #     return a[0][0]*a[1][1]*a[2][2] + a[0][1]*a[1][2]*a[2][0] + a[0][2]*a[1][0]*a[2][1] - a[0][2]*a[1][1]*a[2][0] - a[0][1]*a[1][0]*a[2][2] - a[0][0]*a[1][2]*a[2][1]
 
-        z = det([[1,a[1],a[2]],
-                 [1,b[1],b[2]],
-                 [1,c[1],c[2]]])
+    # def unit_normal(a,b,c):
+    #     x = det([[1,a[1],a[2]],
+    #              [1,b[1],b[2]],
+    #              [1,c[1],c[2]]])
+
+    #     y = det([[1,a[1],a[2]],
+    #              [1,b[1],b[2]],
+    #              [1,c[1],c[2]]])
+
+    #     z = det([[1,a[1],a[2]],
+    #              [1,b[1],b[2]],
+    #              [1,c[1],c[2]]])
         
-        magnitude = (x**2 + y**2 + z**2)**.5
-        if magnitude == 0.0:
-            raise ValueError("no magnitude")
-        return (x/magnitude, y/magnitude, z/magnitude)
+    #     magnitude = (x**2 + y**2 + z**2)**.5
+    #     if magnitude == 0.0:
+    #         raise ValueError("no magnitude")
+    #     return (x/magnitude, y/magnitude, z/magnitude)
 
-    def orient(self):
-        self.normal = self.unit_normal(self.poslist[0][0],self.poslist[0][1],self.poslist[0][2])
-        return self.normal
+    # def orient(self):
+    #     self.normal = self.unit_normal(self.poslist[0][0],self.poslist[0][1],self.poslist[0][2])
+    #     return self.normal
 
 class Shell(object):
     
-    def __init__(self,polylist=[],shellid=None,fid=None,role=None):
-        self.polylist = polylist
-        self.shellid = shellid
-        self.fid = fid
-        self.role = role
+    def __init__(self):
+        self.polylist = list()
+        self.shellid = None
+        self.fid = None
+        self.role = None
 
     def add_poly(self,poly):
         self.polylist.append(poly)
@@ -87,11 +95,11 @@ class Shell(object):
 
 class Solid(object):
 
-    def __init__(self,shelllist=[],solidid=None,fid=None,role=None):
-        self.shelllist = shelllist
-        self.solidid = solidid
-        self.fid = fid
-        self.role = role
+    def __init__(self):
+        self.shelllist = list()
+        self.solidid = None
+        self.fid = None
+        self.role = None
 
     def add_shell(self,shell):
         self.shelllist.append(shell)
@@ -107,10 +115,10 @@ class Solid(object):
 
 class Feature(object):
     
-    def __init__(self,solids=[],surfaces=[],fid=None):
-        self.solids = solids
-        self.surfaces = surfaces
-        self.fid = fid
+    def __init__(self):
+        self.solids = list()
+        self.surfaces = list()
+        self.fid = None
 
     def add_solid(self,solid):
         self.solids.append(solid)
@@ -123,12 +131,15 @@ class Feature(object):
 
 class Building(Feature):
 
-    def __init__(self,buildingparts=[],solids=[],surfaces=[],fid=None):
-        self.solids = solids
-        self.surfaces = surfaces
-        self.fid = fid
-        self.buildingparts = buildingparts
+    def __init__(self):
+        self.solids = list()
+        self.surfaces = list()
+        self.fid = None
+        self.buildingparts = list()
+        self.invalidpolys = list()
     
     def add_buildingpart(self,buildingpart):
         self.buildingparts.append(buildingpart)
 
+    def add_invalidpoly(self,poly):
+        self.invalidpolys.append(poly)

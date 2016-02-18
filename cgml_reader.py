@@ -5,6 +5,7 @@ import uuid
 import pyxb
 import pyxb.binding.basis
 from geo_primitives import *
+#from geo_algorithm import *
 #import fish
 import citygml.appearance_1_0
 import citygml.building_1_0
@@ -61,6 +62,7 @@ def Building_push(dataset):
     pass
 
 def Building_output(data):
+    b_ids = list()
     for value in data.content():
         if type(value)!=citygml._gml.FeaturePropertyType:
             continue
@@ -69,7 +71,8 @@ def Building_output(data):
             continue
         building = value.Feature
         fid = Parsing_Building(building)
-        print fid
+        b_ids.append(fid)
+    return b_ids
 
 def Parsing_Building(building):
     fid = str(building.id)
@@ -104,6 +107,7 @@ def Parsing_Building(building):
     if building.lod4Solid:
         bgobj.add_solid(Parsing_Solid(building.lod4Solid.Solid,fid))
     bgobj.set_fid(fid)
+    bgobj.fid = fid
     buildings[fid]=bgobj
     return fid
 
@@ -123,28 +127,37 @@ def Parsing_Solid(Solid3D,fid):
     if solids.has_key(fid):
         solids[fid].append(solid)
     else:
-        solids[fid] = [solid]
+        solids[fid] = solid
     return solid
 
 def Parsing_Surface(surface,role=None,fid=None):
+    global wall_count
+    global roof_count
+    global ground_count
     if type(surface.Surface) == citygml._gml.CompositeSurfaceType:
-        composid = str(surface.Surface.id)
+        composid = surface.Surface.id
         if composid==None:
-            composid = str(uuid.uuid1()) 
+            composid = str(uuid.uuid1())
+        #print composid
+        if shells.has_key(composid):
+            if shells[composid]:
+                return composid
         shell = Shell()
         shell.set_shellid(composid)
+        shell.shellid = composid
         for s in surface.Surface.content():
             if type(s) == citygml._gml.SurfacePropertyType:
                 shell.add_poly(Parsing_Surface(s,role,fid))
         shells[composid] = shell
         return composid
     elif type(surface.Surface) == citygml._gml.PolygonType:
-        polyid = str(surface.Surface.id)
+        polyid = surface.Surface.id
         #print polyid
         if polys.has_key(polyid):
             if polys[polyid]:
                 return polyid
         poly = Polygon()
+        #poly.poslist = list()
         for p in surface.Surface.content():
             if type(p) == citygml._gml.AbstractRingPropertyType:
                 #poslist = p.Ring.posList.value()
@@ -153,12 +166,22 @@ def Parsing_Surface(surface,role=None,fid=None):
                     poslist.extend(pos.value())
                 poly.add_pos(poslist)
         poly.set_role(role)
-        poly.add_fid(fid)
+        if role == 'WallSurface':
+            wall_count+=1
+        elif role == 'RoofSurface':
+            roof_count+=1
+        elif role == 'GroundSurface':
+            ground_count+=1
+        if fid not in poly.fid:
+            poly.add_fid(fid)
+        poly.polyid = polyid
         polys[polyid]=poly
         #poly.orient()
         return polyid
     elif surface.Surface == None:
         xlink = str(surface.href)
+        if xlink[0] == "#":
+            xlink = xlink[1:]
         return xlink
     else:
         raise ValueError("Surface error")
@@ -170,6 +193,9 @@ polys = dict()
 shells = dict()
 solids = dict()
 buildings = dict()
+wall_count = 0
+roof_count = 0
+ground_count = 0
 if __name__ == "__main__":
     dataset = data_read()
     print "Files reading completely!"
