@@ -80,13 +80,13 @@ invalid_roof=0
 tolerance = 10.0
 if __name__ == "__main__":
     bids = semantic_check()
-    print "Building amount %d" % len(bids)
+    print "Building amount:%d" % len(bids)
     if cgml_reader.wall_count !=0 and cgml_reader.roof_count !=0 and cgml_reader.ground_count !=0:
-        print "WallSurface amount %d" % cgml_reader.wall_count
-        print "RoofSurface amount %d" % cgml_reader.roof_count
-        print "GroundSurface amount %d" % cgml_reader.ground_count
+        print "WallSurface amount:%d" % cgml_reader.wall_count
+        print "RoofSurface amount:%d" % cgml_reader.roof_count
+        print "GroundSurface amount:%d" % cgml_reader.ground_count
         write_report(bids)
-        print invalid_wall
-        print invalid_roof
-        print invalid_ground
+        #print invalid_wall
+        #print invalid_roof
+        #print invalid_ground
      
