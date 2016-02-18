@@ -19,10 +19,13 @@ def semantic_check():
     b_ids = cgml_reader.Building_output(data)
     for poly in cgml_reader.polys.values():
         if calculate(poly)>tolerance and poly.role == 'WallSurface':
+            #print calculate(poly),poly.role
             poly.set_valid(False)
         elif 90 - calculate(poly)>tolerance and poly.role == 'GroundSurface':
+            #print calculate(poly),poly.role
             poly.set_valid(False)
         elif 90 - calculate(poly)>tolerance * 65 and poly.role == 'RoofSurface':
+            #print calculate(poly),poly.role
             poly.set_valid(False)
         else:
             continue
@@ -44,9 +47,9 @@ def write_report(b_ids):
             continue
         building = cgml_reader.buildings[b_id]
         report_building(building)
-    print "WallSurface:%f" % (float(invalid_wall)/float(cgml_reader.wall_count))
-    print "RoofSurface:%f" % (float(invalid_roof)/float(cgml_reader.roof_count))
-    print "GroundSurface:%f" % (float(invalid_ground)/float(cgml_reader.ground_count))
+    print "WallSurface:%.5f%%" % (float(invalid_wall)/float(cgml_reader.wall_count)*100)
+    print "RoofSurface:%.5f%%" % (float(invalid_roof)/float(cgml_reader.roof_count)*100)
+    print "GroundSurface:%.5f%%" % (float(invalid_ground)/float(cgml_reader.ground_count)*100)
 
 
 
@@ -58,15 +61,17 @@ def report_building(building):
         for bp in building.buildingparts:
             report_building(cgml_reader.buildings[bp])
     else:
-        print "Building ID:%s" % building.fid
-        for poly in building.invalidpolys:
-            if poly.role == 'WallSurface':
-                invalid_wall+=1
-            elif poly.role == 'RoofSurface':
-                invalid_roof+=1
-            elif poly.role == 'GroundSurface':
-                invalid_ground+=1
-            print "Polygon ID:%s,%s" % (poly.polyid,poly.role)
+        if building.invalidpolys: 
+            print "Building ID:%s" % building.fid
+            for poly in building.invalidpolys:
+                role = cgml_reader.polys[poly].role
+                if role == 'WallSurface':
+                    invalid_wall+=1
+                elif role == 'RoofSurface':
+                    invalid_roof+=1
+                elif role == 'GroundSurface':
+                    invalid_ground+=1
+                print "Polygon ID:%s,%s" % (poly,role)
      
 
 invalid_wall=0
@@ -74,5 +79,14 @@ invalid_ground=0
 invalid_roof=0
 tolerance = 10.0
 if __name__ == "__main__":
-    write_report(semantic_check())
- 
+    bids = semantic_check()
+    print "Building amount %d" % len(bids)
+    if cgml_reader.wall_count !=0 and cgml_reader.roof_count !=0 and cgml_reader.ground_count !=0:
+        print "WallSurface amount %d" % cgml_reader.wall_count
+        print "RoofSurface amount %d" % cgml_reader.roof_count
+        print "GroundSurface amount %d" % cgml_reader.ground_count
+        write_report(bids)
+        print invalid_wall
+        print invalid_roof
+        print invalid_ground
+     

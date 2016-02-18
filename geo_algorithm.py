@@ -2,6 +2,7 @@
 # coding=utf-8
 from geo_primitives import *
 import math
+import numpy as np
 
 def snap_point(p1,p2):
     point1 = p1
@@ -15,7 +16,7 @@ def snap_point(p1,p2):
 def det(a):
    	return a[0][0]*a[1][1]*a[2][2] + a[0][1]*a[1][2]*a[2][0] + a[0][2]*a[1][0]*a[2][1] - a[0][2]*a[1][1]*a[2][0] - a[0][1]*a[1][0]*a[2][2] - a[0][0]*a[1][2]*a[2][1]
 
-def unit_normal(a,b,c):
+def unit_normal(a,b,c,poly):
     x = det([[1,a[1],a[2]],
              [1,b[1],b[2]],
              [1,c[1],c[2]]])
@@ -30,14 +31,26 @@ def unit_normal(a,b,c):
      
     magnitude = (x**2 + y**2 + z**2)**.5
     if magnitude == 0.0:
-        raise ValueError("no magnitude")
+    	c = poly.pop(2)
+    	#print a,b,c
+    	if len(poly)<3:
+        	raise ValueError("no magnitude %s" % str(poly))
+        else:
+        	return unit_normal(a,b,poly[2],poly)
     return (x/magnitude, y/magnitude, z/magnitude)
 
 def orient(poly):
-    normal = unit_normal([poly[0][0],poly[0][1],poly[0][2]],
-    					 [poly[0][3],poly[0][4],poly[0][5]],
-    					 [poly[0][6],poly[0][7],poly[0][8]])
+	#end = len(poly[0])-1
+    p_array = np.array(poly[0])
+    p_array2 = p_array.reshape(p_array.size/3,3).tolist()
+    normal = unit_normal(p_array2[0],p_array2[1],p_array2[2],p_array2)
+    #if (normal[0]**2+normal[1]**2+normal[2]**2)**0.5
     return normal
 
 def angle_d(normal):
-	return math.degrees(math.acos((normal[0]**2+normal[1]**2)**0.5))
+	cos = (normal[0]**2+normal[1]**2)**0.5
+	#return math.degrees(math.acos((normal[0]**2+normal[1]**2)**0.5))
+	if math.fabs(cos)>1:
+		#raise ValueError(str(normal[1]))
+		cos = 1
+	return math.degrees(math.acos(cos))
