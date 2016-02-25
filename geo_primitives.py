@@ -26,6 +26,7 @@ class Polygon(object):
         self.role = None
         self.valid = True
         self.validinfo = None
+        self.orientation = None
 
     def set_role(self,role):
         self.role = role
@@ -47,6 +48,9 @@ class Polygon(object):
 
     def set_validinfo(self,validinfo):
         self.validinfo = validinfo
+
+    def set_orientation(self,orientation):
+        self.orientation = orientation
 
     # def det(a):
     #     return a[0][0]*a[1][1]*a[2][2] + a[0][1]*a[1][2]*a[2][0] + a[0][2]*a[1][0]*a[2][1] - a[0][2]*a[1][1]*a[2][0] - a[0][1]*a[1][0]*a[2][2] - a[0][0]*a[1][2]*a[2][1]

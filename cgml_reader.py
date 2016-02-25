@@ -155,7 +155,9 @@ def Parsing_Surface(surface,role=None,fid=None):
         #print polyid
         if polys.has_key(polyid):
             if polys[polyid]:
-                return polyid
+                if fid not in poly.fid:
+                    poly.add_fid(fid)
+                    return polyid
         poly = Polygon()
         #poly.poslist = list()
         for p in surface.Surface.content():
