@@ -74,3 +74,6 @@ result/
 
 # ds
 .DS_Store
+
+#input
+inputdata
