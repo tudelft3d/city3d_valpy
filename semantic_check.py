@@ -146,7 +146,7 @@ invalid_wall=0
 invalid_ground=0
 invalid_roof=0
 invalid_building=0
-if sys.argv[2]:
+if len(sys.argv)>2:
     tolerance = int(sys.argv[2])
 else:
     tolerance = 5.0

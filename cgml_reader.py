@@ -52,6 +52,8 @@ def data_read():
 
 def cgml2class(xml_path):
     xml = open(xml_path).read()
+    pyxb.RequireValidWhenParsing(False) #do not validate xml file when parsing to binding instance
+
     try:
         cgml_model = citygml.cgml.CreateFromDocument(xml,location_base=xml_path)
     except pyxb.ValidationError as e:
