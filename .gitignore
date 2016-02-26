@@ -65,3 +65,12 @@ target/
 # pyenv
 .python-version
 
+#shell script
+shcommand/
+*.sh
+
+#result
+result/
+
+# ds
+.DS_Store
