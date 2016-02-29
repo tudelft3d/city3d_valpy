@@ -41,9 +41,9 @@ def unit_normal(a,b,c,poly):
 
 def orient(poly):
 	#end = len(poly[0])-1
-    p_array = np.array(poly[0])
-    p_array2 = p_array.reshape(p_array.size/3,3).tolist()
-    normal = unit_normal(p_array2[0],p_array2[1],p_array2[2],p_array2)
+    # p_array = np.array(poly[0])
+    # p_array2 = p_array.reshape(p_array.size/3,3).tolist()
+    normal = unit_normal(poly[0],poly[1],poly[2],poly)
     #if (normal[0]**2+normal[1]**2+normal[2]**2)**0.5
     return normal
 
@@ -54,3 +54,26 @@ def angle_d(normal):
 		#raise ValueError(str(normal[1]))
 		cos = 1
 	return math.degrees(math.acos(cos))
+
+def isPolyPlanar(polypoints,normal):
+    """Checks if a polygon is planar."""
+    #-- Normal of the polygon from the first three points
+    # try:
+    #     normal = unit_normal(polypoints[0], polypoints[1], polypoints[2])
+    # except:
+    #     return False
+    #-- Number of points
+    npolypoints = len(polypoints)
+    #-- Tolerance
+    eps = 0.01
+    #-- Assumes planarity
+    planar = True
+    for i in range (3, npolypoints):
+        vector = [polypoints[i][0] - polypoints[0][0], polypoints[i][1] - polypoints[0][1], polypoints[i][2] - polypoints[0][2]]
+        if math.fabs(dot(vector, normal)) > eps:
+            planar = False
+    return planar
+
+def dot(a, b):
+    """Dot product of vectors a and b."""
+    return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]

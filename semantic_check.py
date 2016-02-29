@@ -3,6 +3,7 @@
 
 import sys
 import cgml_reader
+import numpy as np
 from geo_algorithm import *
 from geo_primitives import *
 from lxml import etree
@@ -19,17 +20,24 @@ def semantic_check():
     data = cgml_reader.cgml2class(path)
     b_ids = cgml_reader.Building_output(data)
     for poly in cgml_reader.polys.values():
-        orientation = calculate(poly)
+        p_array = np.array(poly.poslist[0])
+        p_array_trans = p_array.reshape(p_array.size/3,3).tolist()
+        normal = orient(p_array_trans[:-1])
+        orientation = angle_d(normal)
+        #orientation = calculate(poly)
         poly.set_orientation(90-orientation)
         if orientation>tolerance and poly.role == 'WallSurface':
             #print calculate(poly),poly.role
             poly.set_valid(False)
+            poly.set_planar(isPolyPlanar(p_array_trans[:-1],normal))
         elif 90 - orientation>tolerance and poly.role == 'GroundSurface':
             #print calculate(poly),poly.role
             poly.set_valid(False)
+            poly.set_planar(isPolyPlanar(p_array_trans[:-1],normal))
         elif 90 - orientation> 70-tolerance and poly.role == 'RoofSurface':
             #print calculate(poly),poly.role
             poly.set_valid(False)
+            poly.set_planar(isPolyPlanar(p_array_trans[:-1],normal))
         else:
             continue
         for fid in poly.fid:
@@ -95,6 +103,9 @@ def surface_node(surface):
             grandchild2 = etree.Element('orientation')
             grandchild2.text = str(poly.orientation)
             child.append(grandchild2)
+            grandchild3 = etree.Element('planar')
+            grandchild3.text = str(poly.planar)
+            child.append(grandchild3)
             role = poly.role
             if role == 'WallSurface':
                 invalid_wall+=1
