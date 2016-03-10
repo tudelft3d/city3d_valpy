@@ -67,7 +67,7 @@ target/
 
 #shell script
 shcommand/
-*.sh
+#*.sh
 
 #result
 result/
@@ -77,3 +77,6 @@ result/
 
 #input
 inputdata
+
+#log
+*.log

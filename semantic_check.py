@@ -11,6 +11,11 @@ from lxml import etree
 def calculate(poly):
     return angle_d(orient(poly.poslist))
 
+def parsing_report(path):
+    geo_report = open(path).read()
+    report_root = etree.XML(geo_report)
+    return [f.text for f in report_root.findall('.//face')]
+
 def semantic_check():
     if sys.argv[1]:
         path = sys.argv[1]
@@ -19,7 +24,16 @@ def semantic_check():
         return
     data = cgml_reader.cgml2class(path)
     b_ids = cgml_reader.Building_output(data)
+    global inputfile
+    inputfile = path
+    global invalid_faces
+    if len(sys.argv)>3:
+        r_path = sys.argv[3]
+        invalid_faces = parsing_report(r_path)
+
     for poly in cgml_reader.polys.values():
+        if poly.fid in invalid_faces:
+            continue
         p_array = np.array(poly.poslist[0])
         p_array_trans = p_array.reshape(p_array.size/3,3).tolist()
         normal = orient(p_array_trans[:-1])
@@ -50,10 +64,39 @@ def write_report(b_ids):
     global invalid_roof
     global invalid_ground
     global invalid_building
+    global inputfile
+    global tolerance
     root = etree.Element('Semantic')
     if b_ids == None:
         print "\n"
         return
+    # infile_node = etree.Element('inputfile')
+    # infile_node.text = inputfile
+    # root.append(infile_node)
+    # tolerance_node = etree.Element('tolerance')
+    # tolerance_node.text = str(tolerance)
+    # root.append(tolerance_node)
+    # building_node = etree.Element('buildings')
+    # building_node.text = str(len(b_ids))
+    # root.append(building_node)
+    # invalidbuilding_node = etree.Element('invalidbuilding')
+    # invalidbuilding_node.text = str(invalid_building)
+    # root.append(invalidbuilding_node)
+    # surfaces_node = etree.Element('surfaces')
+    # surfaces_node.text = str(len(cgml_reader.polys.values()))
+    # root.append(surfaces_node)
+    # invalidsurfaces_node = etree.Element('invalidsurfaces')
+    # invalidsurfaces_node.text = str(invalid_wall+invalid_roof+invalid_ground)
+    # root.append(invalidsurfaces_node)
+    # invalidwall_node = etree.Element('invalidwalls')
+    # invalidwall_node .text = str(invalid_wall)
+    # root.append(invalidwall_node)
+    # invalidroof_node = etree.Element('invalidroofs')
+    # invalidroof_node.text = str(invalid_roof)
+    # root.append(invalidroof_node)
+    # invalidground_node = etree.Element('invalidground')
+    # invalidground_node.text = str(invalid_ground)
+    # root.append(invalidground_node)
     for b_id in b_ids:
         if not cgml_reader.buildings.has_key(b_id):
             print "miss building ID %s" % b_id
@@ -63,6 +106,12 @@ def write_report(b_ids):
         if len(child):
             root.append(child)
             invalid_building+=1
+    infile_node = etree.Element('inputfile')
+    infile_node.text = inputfile
+    root.append(infile_node)
+    tolerance_node = etree.Element('tolerance')
+    tolerance_node.text = str(tolerance)
+    root.append(tolerance_node)
     building_node = etree.Element('buildings')
     building_node.text = str(len(b_ids))
     root.append(building_node)
@@ -72,6 +121,9 @@ def write_report(b_ids):
     surfaces_node = etree.Element('surfaces')
     surfaces_node.text = str(len(cgml_reader.polys.values()))
     root.append(surfaces_node)
+    invalidsurfaces_node = etree.Element('invalidsurfaces')
+    invalidsurfaces_node.text = str(invalid_wall+invalid_roof+invalid_ground)
+    root.append(invalidsurfaces_node)
     invalidwall_node = etree.Element('invalidwalls')
     invalidwall_node .text = str(invalid_wall)
     root.append(invalidwall_node)
@@ -81,6 +133,24 @@ def write_report(b_ids):
     invalidground_node = etree.Element('invalidground')
     invalidground_node.text = str(invalid_ground)
     root.append(invalidground_node)
+    # building_node = etree.Element('buildings')
+    # building_node.text = str(len(b_ids))
+    # root.append(building_node)
+    # invalidbuilding_node = etree.Element('invalidbuilding')
+    # invalidbuilding_node.text = str(invalid_building)
+    # root.append(invalidbuilding_node)
+    # surfaces_node = etree.Element('surfaces')
+    # surfaces_node.text = str(len(cgml_reader.polys.values()))
+    # root.append(surfaces_node)
+    # invalidwall_node = etree.Element('invalidwalls')
+    # invalidwall_node .text = str(invalid_wall)
+    # root.append(invalidwall_node)
+    # invalidroof_node = etree.Element('invalidroofs')
+    # invalidroof_node.text = str(invalid_roof)
+    # root.append(invalidroof_node)
+    # invalidground_node = etree.Element('invalidground')
+    # invalidground_node.text = str(invalid_ground)
+    # root.append(invalidground_node)
 
     return root
 
@@ -100,19 +170,31 @@ def surface_node(surface):
         grandchild1.text = str(poly.valid)
         child.append(grandchild1)
         if not poly.valid:
+            grandchild0 = etree.Element('code')
+            role = poly.role
+            if role == 'WallSurface':
+                invalid_wall+=1
+                grandchild0.text = 'S102'
+            elif role == 'RoofSurface':
+                invalid_roof+=1
+                grandchild0.text = 'S103'
+            elif role == 'GroundSurface':
+                invalid_ground+=1
+                grandchild0.text = 'S101'
+            child.append(grandchild0)
             grandchild2 = etree.Element('orientation')
             grandchild2.text = str(poly.orientation)
             child.append(grandchild2)
             grandchild3 = etree.Element('planar')
             grandchild3.text = str(poly.planar)
             child.append(grandchild3)
-            role = poly.role
-            if role == 'WallSurface':
-                invalid_wall+=1
-            elif role == 'RoofSurface':
-                invalid_roof+=1
-            elif role == 'GroundSurface':
-                invalid_ground+=1
+            # role = poly.role
+            # if role == 'WallSurface':
+            #     invalid_wall+=1
+            # elif role == 'RoofSurface':
+            #     invalid_roof+=1
+            # elif role == 'GroundSurface':
+            #     invalid_ground+=1
         return child
     elif cgml_reader.shells.has_key(surface):
         shell = cgml_reader.shells[surface]
@@ -157,7 +239,9 @@ invalid_wall=0
 invalid_ground=0
 invalid_roof=0
 invalid_building=0
-if len(sys.argv)>2:
+inputfile=None
+invalid_faces=list()
+if len(sys.argv)>3:
     tolerance = int(sys.argv[2])
 else:
     tolerance = 5.0
