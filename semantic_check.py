@@ -40,11 +40,11 @@ def semantic_check():
         orientation = angle_d(normal)
         #orientation = calculate(poly)
         poly.set_orientation(90-orientation)
-        if orientation>tolerance and poly.role == 'WallSurface':
+        if orientation>tolerance and (poly.role == 'WallSurface' or poly.role == 'InteriorWallSurface'):
             #print calculate(poly),poly.role
             poly.set_valid(False)
             poly.set_planar(isPolyPlanar(p_array_trans[:-1],normal))
-        elif 90 - orientation>tolerance and poly.role == 'GroundSurface':
+        elif 90 - orientation>tolerance and (poly.role == 'GroundSurface' or poly.role == 'OuterCeilingSurface' or poly.role == 'OuterFloorSurface' or poly.role == 'CeilingSurface' or poly.role == 'FloorSurface':
             #print calculate(poly),poly.role
             poly.set_valid(False)
             poly.set_planar(isPolyPlanar(p_array_trans[:-1],normal))
@@ -64,6 +64,11 @@ def write_report(b_ids):
     global invalid_roof
     global invalid_ground
     global invalid_building
+    global invalid_outerceiling
+    global invalid_outerfloor
+    global invalid_floor
+    global invalid_ground
+    global invalid_interiorwall
     global inputfile
     global tolerance
     root = etree.Element('Semantic')
@@ -124,15 +129,63 @@ def write_report(b_ids):
     invalidsurfaces_node = etree.Element('invalidsurfaces')
     invalidsurfaces_node.text = str(invalid_wall+invalid_roof+invalid_ground)
     root.append(invalidsurfaces_node)
+    wall_node = etree.Element('walls')
+    wall_node.text = str(cgml_reader.wall_count)
+    root.append(wall_node)
     invalidwall_node = etree.Element('invalidwalls')
-    invalidwall_node .text = str(invalid_wall)
+    invalidwall_node.text = str(invalid_wall)
     root.append(invalidwall_node)
+    roof_node = etree.Element('roofs')
+    roof_node.text = str(cgml_reader.roof_count)
+    root.append(roof_node)
     invalidroof_node = etree.Element('invalidroofs')
     invalidroof_node.text = str(invalid_roof)
     root.append(invalidroof_node)
+    ground_node = etree.Element('grounds')
+    ground_node.text = str(cgml_reader.ground_count)
+    root.append(ground_node)
     invalidground_node = etree.Element('invalidground')
     invalidground_node.text = str(invalid_ground)
     root.append(invalidground_node)
+    floor_node = etree.Element('floors')
+    floor_node.text = str(cgml_reader.floor_count)
+    root.append(floor_node)
+    invalidfloor_node = etree.Element('invalidfloor')
+    invalidfloor_node.text = str(invalid_floor)
+    root.append(invalidfloor_node)
+    ceiling_node = etree.Element('ceilings')
+    ceiling_node.text = str(cgml_reader.ceiling_count)
+    root.append(ceiling_node)
+    invalidceiling_node = etree.Element('invalidceiling')
+    invalidceiling_node.text = str(invalid_ceiling)
+    root.append(invalidceiling_node)
+    outerfloor_node = etree.Element('outerfloors')
+    outerfloor_node.text = str(cgml_reader.outerfloor_count)
+    root.append(outerfloor_node)
+    invalidouterfloor_node = etree.Element('invalidouterfloor')
+    invalidouterfloor_node.text = str(invalid_outerfloor)
+    root.append(invalidouterfloor_node)
+    outerceiling_node = etree.Element('outerceilings')
+    outerceiling_node.text = str(cgml_reader.outerceiling_count)
+    root.append(outerceiling_node)
+    invalidouterceiling_node = etree.Element('invalidouterceiling')
+    invalidouterceiling_node.text = str(invalid_outerceiling)
+    root.append(invalidouterceiling_node)
+    interiorwall_node = etree.Element('interiorwalls')
+    interiorwall_node.text = str(cgml_reader.interiorwall_count)
+    root.append(interiorwall_node)
+    invalidinteriorwall_node = etree.Element('invalidinteriorwalls')
+    invalidinteriorwall_node.text = str(invalid_interiorwall)
+    root.append(invalidinteriorwall_node)
+    window_node = etree.Element('windows')
+    window_node.text = str(cgml_reader.window_count)
+    root.append(window_node)
+    door_node = etree.Element('doors')
+    door_node.text = str(cgml_reader.door_count)
+    root.append(door_node)
+    closure_node = etree.Element('closures')
+    closure_node.text = str(cgml_reader.closure_count)
+    root.append(closure_node)
     # building_node = etree.Element('buildings')
     # building_node.text = str(len(b_ids))
     # root.append(building_node)
@@ -163,6 +216,11 @@ def surface_node(surface):
     global invalid_roof
     global invalid_ground
     global invalid_building
+    global invalid_outerceiling
+    global invalid_outerfloor
+    global invalid_floor
+    global invalid_ceiling
+    global invalid_interiorwall
     if cgml_reader.polys.has_key(surface):
         poly = cgml_reader.polys[surface]
         child = etree.Element('surface', ID=surface, type=poly.role)
@@ -181,6 +239,21 @@ def surface_node(surface):
             elif role == 'GroundSurface':
                 invalid_ground+=1
                 grandchild0.text = 'S101'
+            elif role == 'OuterFloorSurface':
+                invalid_outerfloor+=1
+                grandchild0.text = 'S104'
+            elif role == 'OuterCeilingSurface':
+                invalid_outerceiling+=1
+                grandchild0.text = 'S105'
+            elif role == 'FloorSurface':
+                invalid_floor+=1
+                grandchild0.text = 'S106'
+            elif role == 'CeilingSurface':
+                invalid_ceiling+=1
+                grandchild0.text = 'S107'
+            elif role == 'InteriorWallSurface':
+                invalid_interiorwall+=1
+                grandchild0.text = 'S108'
             child.append(grandchild0)
             grandchild2 = etree.Element('orientation')
             grandchild2.text = str(poly.orientation)
@@ -239,6 +312,11 @@ invalid_wall=0
 invalid_ground=0
 invalid_roof=0
 invalid_building=0
+invalid_outerceiling=0
+invalid_outerfloor=0
+invalid_floor=0
+invalid_ceiling=0
+invalid_interiorwall=0
 inputfile=None
 invalid_faces=list()
 if len(sys.argv)>3:

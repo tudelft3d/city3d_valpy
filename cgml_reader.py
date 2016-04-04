@@ -88,15 +88,37 @@ def Parsing_Building(building):
                         if type(ms)==citygml._gml.SurfacePropertyType:
                             bgobj.add_surfaces(Parsing_Surface(ms,role,fid))
             if f.BoundarySurface.lod3MultiSurface:
-                if f.BoundarySurface.lod3MultiSurface.MultiSurface:
-                    for ms in f.BoundarySurface.lod3MultiSurface.MultiSurface.content():
-                        if type(ms)==citygml._gml.SurfacePropertyType:
-                            bgobj.add_surfaces(Parsing_Surface(ms,role,fid))
+                # if f.BoundarySurface.lod3MultiSurface.MultiSurface:
+                #     for ms in f.BoundarySurface.lod3MultiSurface.MultiSurface.content():
+                #         if type(ms)==citygml._gml.SurfacePropertyType:
+                #             bgobj.add_surfaces(Parsing_Surface(ms,role,fid))
+                for surf in f.BoundarySurface.content():
+                    if type(surf)==citygml._gml.MultiSurfacePropertyType:
+                        for ms in surf.MultiSurface.content():
+                            if type(ms)==citygml._gml.SurfacePropertyType:
+                                bgobj.add_surfaces(Parsing_Surface(ms,role,fid))
+                    elif type(surf)==citygml.building_2_0.OpeningPropertyType or type(surf)==citygml.building_1_0.OpeningPropertyType:
+                        for ms in surf.Opening.lod3MultiSurface.MultiSurface.content():
+                            if type(ms)==citygml._gml.SurfacePropertyType:
+                                role_opening = surf.Opening._element.name().localName()
+                                bgobj.add_surfaces(Parsing_Surface(ms,role_opening,fid))
             if f.BoundarySurface.lod4MultiSurface:
-                if f.BoundarySurface.lod4MultiSurface.MultiSurface:
-                    for ms in f.BoundarySurface.lod4MultiSurface.MultiSurface.content():
-                        if type(ms)==citygml._gml.SurfacePropertyType:
-                            bgobj.add_surfaces(Parsing_Surface(ms,role,fid))
+                # if f.BoundarySurface.lod4MultiSurface.MultiSurface:
+                #     for ms in f.BoundarySurface.lod4MultiSurface.MultiSurface.content():
+                #         if type(ms)==citygml._gml.SurfacePropertyType:
+                #             bgobj.add_surfaces(Parsing_Surface(ms,role,fid))
+                for surf in f.BoundarySurface.content():
+                    if type(surf)==citygml._gml.MultiSurfacePropertyType:
+                        for ms in surf.MultiSurface.content():
+                            if type(ms)==citygml._gml.SurfacePropertyType:
+                                bgobj.add_surfaces(Parsing_Surface(ms,role,fid))
+                    elif type(surf)==citygml.building_2_0.OpeningPropertyType or type(surf)==citygml.building_1_0.OpeningPropertyType:
+                        for ms in surf.Opening.lod4MultiSurface.MultiSurface.content():
+                            if type(ms)==citygml._gml.SurfacePropertyType:
+                                role_opening = surf.Opening._element.name().localName()
+                                bgobj.add_surfaces(Parsing_Surface(ms,role_opening,fid))
+        elif type(f)==citygml.building_1_0.InteriorRoomPropertyType or type(f)==citygml.building_2_0.InteriorRoomPropertyType:
+            Parsing_InnerRoom(f.Room,fid,bgobj)
         elif type(f)==citygml.building_1_0.BuildingPartPropertyType or type(f)==citygml.building_2_0.BuildingPartPropertyType:
             bgobj.add_buildingpart(Parsing_Building(f.BuildingPart))
 
@@ -112,6 +134,26 @@ def Parsing_Building(building):
     bgobj.fid = fid
     buildings[fid]=bgobj
     return fid
+
+def Parsing_InnerRoom(room,fid,bgobj):
+    for f in room.content():
+        if type(f)==citygml.building_2_0.BoundarySurfacePropertyType or type(f)==citygml.building_1_0.BoundarySurfacePropertyType:
+            role = str(f.BoundarySurface._element().name().localName())
+            if f.BoundarySurface.lod4MultiSurface:
+            # if f.BoundarySurface.lod4MultiSurface.MultiSurface:
+            #     for ms in f.BoundarySurface.lod4MultiSurface.MultiSurface.content():
+            #         if type(ms)==citygml._gml.SurfacePropertyType:
+            #             bgobj.add_surfaces(Parsing_Surface(ms,role,fid))
+                for surf in f.BoundarySurface.content():
+                    if type(surf)==citygml._gml.MultiSurfacePropertyType:
+                        for ms in surf.MultiSurface.content():
+                            if type(ms)==citygml._gml.SurfacePropertyType:
+                                bgobj.add_surfaces(Parsing_Surface(ms,role,fid))
+                    elif type(surf)==citygml.building_2_0.OpeningPropertyType or type(surf)==citygml.building_1_0.OpeningPropertyType:
+                        for ms in surf.Opening.lod4MultiSurface.MultiSurface.content():
+                            if type(ms)==citygml._gml.SurfacePropertyType:
+                                role_opening = surf.Opening._element.name().localName()
+                                bgobj.add_surfaces(Parsing_Surface(ms,role_opening,fid))
 
 def Parsing_BoundarySurface(BS):
     pass
@@ -136,6 +178,14 @@ def Parsing_Surface(surface,role=None,fid=None):
     global wall_count
     global roof_count
     global ground_count
+    global outerceiling_count
+    global outerfloor_count
+    global closure_count
+    global ceiling_count
+    global interiorwall_count
+    global floor_count
+    global window_count
+    global door_count
     if type(surface.Surface) == citygml._gml.CompositeSurfaceType:
         composid = surface.Surface.id
         if composid==None:
@@ -176,6 +226,22 @@ def Parsing_Surface(surface,role=None,fid=None):
             roof_count+=1
         elif role == 'GroundSurface':
             ground_count+=1
+        elif role == 'ClosureSurface':
+            closure_count+=1
+        elif role == 'OuterCeilingSurface':
+            outerceiling_count+=1
+        elif role == 'OuterFloorSurface':
+            outerfloor_count+=1
+        elif role == 'FloorSurface':
+            floor_count+=1
+        elif role == 'CeilingSurface':
+            ceiling_count+=1
+        elif role == 'InteriorWallSurface':
+            interiorwall_count+=1
+        elif role == 'Window':
+            window_count+=1
+        elif role == 'Door':
+            door_count+=1
         if fid not in poly.fid:
             poly.add_fid(fid)
         poly.polyid = polyid
@@ -200,6 +266,14 @@ buildings = dict()
 wall_count = 0
 roof_count = 0
 ground_count = 0
+outerceiling_count = 0
+outerfloor_count = 0
+closure_count = 0
+ceiling_count = 0
+interiorwall_count = 0
+floor_count = 0
+window_count = 0
+door_count = 0
 if __name__ == "__main__":
     dataset = data_read()
     print "Files reading completely!"
