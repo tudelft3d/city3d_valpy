@@ -100,7 +100,7 @@ def Parsing_Building(building):
                     elif type(surf)==citygml.building_2_0.OpeningPropertyType or type(surf)==citygml.building_1_0.OpeningPropertyType:
                         for ms in surf.Opening.lod3MultiSurface.MultiSurface.content():
                             if type(ms)==citygml._gml.SurfacePropertyType:
-                                role_opening = surf.Opening._element.name().localName()
+                                role_opening = surf.Opening._element().name().localName()
                                 bgobj.add_surfaces(Parsing_Surface(ms,role_opening,fid))
             if f.BoundarySurface.lod4MultiSurface:
                 # if f.BoundarySurface.lod4MultiSurface.MultiSurface:
@@ -115,7 +115,7 @@ def Parsing_Building(building):
                     elif type(surf)==citygml.building_2_0.OpeningPropertyType or type(surf)==citygml.building_1_0.OpeningPropertyType:
                         for ms in surf.Opening.lod4MultiSurface.MultiSurface.content():
                             if type(ms)==citygml._gml.SurfacePropertyType:
-                                role_opening = surf.Opening._element.name().localName()
+                                role_opening = surf.Opening._element().name().localName()
                                 bgobj.add_surfaces(Parsing_Surface(ms,role_opening,fid))
         elif type(f)==citygml.building_1_0.InteriorRoomPropertyType or type(f)==citygml.building_2_0.InteriorRoomPropertyType:
             Parsing_InnerRoom(f.Room,fid,bgobj)
@@ -152,7 +152,7 @@ def Parsing_InnerRoom(room,fid,bgobj):
                     elif type(surf)==citygml.building_2_0.OpeningPropertyType or type(surf)==citygml.building_1_0.OpeningPropertyType:
                         for ms in surf.Opening.lod4MultiSurface.MultiSurface.content():
                             if type(ms)==citygml._gml.SurfacePropertyType:
-                                role_opening = surf.Opening._element.name().localName()
+                                role_opening = surf.Opening._element().name().localName()
                                 bgobj.add_surfaces(Parsing_Surface(ms,role_opening,fid))
 
 def Parsing_BoundarySurface(BS):
@@ -253,8 +253,13 @@ def Parsing_Surface(surface,role=None,fid=None):
         if xlink[0] == "#":
             xlink = xlink[1:]
         return xlink
+    elif type(surface.Surface) == citygml._gml.OrientableSurfaceType:
+        xlink = str(surface.Surface.baseSurface.href)
+        if xlink[0] == "#":
+            xlink = xlink[1:]
+        return xlink
     else:
-        raise ValueError("Surface error")
+        raise ValueError("Surface error,%s" % surface.Surface)
 
 
 tolerance = 0.01

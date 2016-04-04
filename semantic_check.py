@@ -44,7 +44,7 @@ def semantic_check():
             #print calculate(poly),poly.role
             poly.set_valid(False)
             poly.set_planar(isPolyPlanar(p_array_trans[:-1],normal))
-        elif 90 - orientation>tolerance and (poly.role == 'GroundSurface' or poly.role == 'OuterCeilingSurface' or poly.role == 'OuterFloorSurface' or poly.role == 'CeilingSurface' or poly.role == 'FloorSurface':
+        elif 90 - orientation>tolerance and (poly.role == 'GroundSurface' or poly.role == 'OuterCeilingSurface' or poly.role == 'OuterFloorSurface' or poly.role == 'CeilingSurface' or poly.role == 'FloorSurface'):
             #print calculate(poly),poly.role
             poly.set_valid(False)
             poly.set_planar(isPolyPlanar(p_array_trans[:-1],normal))
@@ -272,11 +272,11 @@ def surface_node(surface):
     elif cgml_reader.shells.has_key(surface):
         shell = cgml_reader.shells[surface]
         child = etree.Element('compositesurface', ID=surface, type='Compositesurface')
-        for sh in shell.poslist:
+        for sh in shell.polylist:
             child.append(surface_node(sh))
         return child
     else:
-        raise ValueError('generate error')
+        raise ValueError('generate error,%s' % surface)
 
 def report_building(building,node_name):
     # global invalid_wall
