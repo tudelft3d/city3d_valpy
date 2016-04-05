@@ -23,6 +23,9 @@ def iterate_path(path):
 	for root,dirnames,filenames in os.walk(path):
 		for fname in filenames:
 			if fname.find('semantic')!=-1:
+				report_name = root+'/'+fname
+				if os.path.getsize(report_name)==0:
+					continue
 				reports.append(root+'/'+fname)
 	print reports
 	path_source = open(reports[0]).read()
