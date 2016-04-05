@@ -1,6 +1,6 @@
 #!/bin/bash
-if [! -d "$3"];then
-	mkdir "$3"
+if [! -d "../result/$3"];then
+	mkdir "../result/$3"
 fi
 for file in `ls $1|grep '\(building\)'`
 do
@@ -12,3 +12,5 @@ do
 	#echo $3/$fname".geo.report.xml"
 	sh valid_order.sh $fpath $fname".geo.report.xml" 3
 done
+python report_aggregate.py > ../result/$3/report.xml
+
