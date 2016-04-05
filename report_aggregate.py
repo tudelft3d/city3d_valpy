@@ -24,6 +24,7 @@ def iterate_path(path):
 		for fname in filenames:
 			if fname.find('semantic')!=-1:
 				reports.append(root+'/'+fname)
+	print reports
 	path_source = open(reports[0]).read()
 	root_source = etree.XML(path_source)
 	source_elements = root_source.getchildren()
