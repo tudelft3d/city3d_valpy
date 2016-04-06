@@ -9,7 +9,7 @@ def aggregate(source_elements,xmldist):
 	#source_elements = root_source.getchildren()
 	for ele in root_dist.getchildren():
 		if ele.tag == 'building':
-			source_elements.getchildren().insert(0,ele)
+			source_elements.insert(0,ele)
 		elif ele.tag == 'inputfile':
 			source_elements.find('.//inputfile').text+=','+ele.text
 		elif ele.tag == 'tolerance':

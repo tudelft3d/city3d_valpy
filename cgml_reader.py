@@ -171,7 +171,7 @@ def Parsing_Solid(Solid3D,fid):
     if solids.has_key(fid):
         solids[fid].append(solid)
     else:
-        solids[fid] = solid
+        solids[fid] = [solid]
     return solid
 
 def Parsing_Surface(surface,role=None,fid=None):
