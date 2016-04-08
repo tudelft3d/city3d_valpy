@@ -27,7 +27,7 @@ def iterate_path(path):
 				if os.path.getsize(report_name)==0:
 					continue
 				reports.append(root+'/'+fname)
-	print reports
+	#print reports
 	path_source = open(reports[0]).read()
 	root_source = etree.XML(path_source)
 	#source_elements = root_source.getchildren()
@@ -36,5 +36,5 @@ def iterate_path(path):
 	print etree.tostring(root_source,pretty_print=True)
 
 if __name__ == '__main__':
-	dirpath = '/home/dxin/result/DenHaag'
+	dirpath = 'result/DenHaag'
 	iterate_path(dirpath)
