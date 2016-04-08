@@ -10,7 +10,7 @@ do
 	fpath=$1'/'$file
 	#echo $3/fname
 	#echo $3/$fname".geo.report.xml"
-	sh valid_order.sh $fpath $fname".geo.report.xml" 3
+	sh valid_order.sh $fpath $fname".geo.report.xml" 3 $3
 done
 python report_aggregate.py > ../result/$3/report.xml
 
