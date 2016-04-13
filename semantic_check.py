@@ -12,6 +12,8 @@ from lxml import etree
 def calculate(poly):
     polynormal = orient(poly)
     normal = (0,0,1)
+    if polynormal==None:
+        return None
     #return angle_d(orient(poly.poslist))
     return dot(polynormal,normal)
 
@@ -43,6 +45,8 @@ def semantic_check():
         p_array = np.array(poly.poslist[0])
         p_array_trans = p_array.reshape(p_array.size/3,3).tolist()
         cosnormal = calculate(p_array_trans[:-1])
+        if cosnormal==None:
+            continue
         orientation = angle_d(cosnormal)
         #orientation = calculate(poly)
         poly.set_orientation(orientation)
