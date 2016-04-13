@@ -17,6 +17,7 @@ def det(a):
    	return a[0][0]*a[1][1]*a[2][2] + a[0][1]*a[1][2]*a[2][0] + a[0][2]*a[1][0]*a[2][1] - a[0][2]*a[1][1]*a[2][0] - a[0][1]*a[1][0]*a[2][2] - a[0][0]*a[1][2]*a[2][1]
 
 def orient(poly):
+    normal = None
     points = [poly[0],poly[1]]
     for p in poly[2:]:
         x = det([[1,points[0][1],points[0][2]],
