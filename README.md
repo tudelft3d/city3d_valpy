@@ -6,11 +6,12 @@ This software contain two main parts for the time being. First part is a tool th
 
 # class generation automatically 
 
-For the first part, an open source library PyXB is used to generate binding classes. A specific profile which contains XSDs in 0.4, 1.0, 2.0 for all of the feature classes. Then an algorithm which can extract geometric and semantic information from python classes to construct spatial model for the input of validation tool is built up.    
+For the first part, an open source library PyXB is used to generate binding classes. A specific profile is created by ourselves, which contains XSDs in 0.4, 1.0, 2.0 for all of the feature classes. Then an algorithm which can extract geometric and semantic information from python classes to construct spatial model for the input of validation tool is built up. For instance of building is shown below:
 
 ![building](https://cloud.githubusercontent.com/assets/4657104/14591357/556510ce-0510-11e6-8500-311f50d85bb5.png)
 
-This algorithm is implemented in cgml_reader.py.     
+This algorithm is implemented in cgml_reader.py.
+The spatial model is implemented in geo_primitives.py.    
 
 # semantic validation
 
@@ -19,6 +20,17 @@ For the second part, the normal vector of each surface is calculated. A range ch
 <img src="https://cloud.githubusercontent.com/assets/4657104/14591429/d84bd7d8-0511-11e6-8772-a3a09ac34e02.png" width="250">
 
 The validation and report parts are implemented in semantic_check.py.    
+
+# result report
+
+the software can output the validity result and the real orientation of the surface. The value of the orientation represent the angle between the normal vector and the standard vector we defined. Hence, the readers can understand the orientation of the surface in the real world. The report sample is shown followed:
+
+![s_statistics](https://cloud.githubusercontent.com/assets/4657104/14591855/890d5f3c-0518-11e6-9940-7fde20e43bc1.png)
+![s_detail](https://cloud.githubusercontent.com/assets/4657104/14591859/96f9845e-0518-11e6-90ac-45188df374e8.png)
+
+# For usage
+
+For using this software, you need to install python package PyXB, lxml, Numpy.
 
 batch processing for the whole workflow from data read to result report is realized in valid_order.sh and iterator.sh
 
@@ -29,10 +41,6 @@ batch processing for the whole workflow from data read to result report is reali
 	    2. iterator.sh
 	    	cd working path
 	    	bash iterator.sh "datapath" "document key word" "resultfolder" 
-
-# result report
-
-the software can output the validity result and the real orientation of the surface. The value of the orientation represent the angle between the normal vector and the standard vector we defined. Hence, the readers can understand the orientation of the surface in the real world.
 
 
 
