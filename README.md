@@ -12,7 +12,7 @@ This algorithm is implemented in cgml_reader.py.
 
 For the second part, the normal vector of each surface is calculated. A range chart of orientation corresponding to the normal vectors is built for validation rule.    
 
-![normalclass](https://cloud.githubusercontent.com/assets/4657104/14591429/d84bd7d8-0511-11e6-8772-a3a09ac34e02.png)
+![normalclass](https://cloud.githubusercontent.com/assets/4657104/14591429/d84bd7d8-0511-11e6-8772-a3a09ac34e02.png =100x100)
 
 The validation and report parts are implemented in semantic_check.py.    
 
