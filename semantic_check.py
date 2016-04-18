@@ -54,11 +54,11 @@ def semantic_check():
             #print calculate(poly),poly.role
             poly.set_valid(False)
             #poly.set_planar(isPolyPlanar(p_array_trans[:-1],normal))
-        elif cosnormal>=math.cos(175 * math.pi / 180) and (poly.role == 'GroundSurface' or poly.role == 'OuterFloorSurface'  or poly.role == 'FloorSurface'):
+        elif cosnormal>=math.cos(175 * math.pi / 180) and (poly.role == 'GroundSurface' or poly.role == 'OuterCeilingSurface'  or poly.role == 'CeilingSurface'):
             #print calculate(poly),poly.role
             poly.set_valid(False)
             #poly.set_planar(isPolyPlanar(p_array_trans[:-1],normal))
-        elif cosnormal<=math.cos(85 * math.pi / 180) and (poly.role == 'RoofSurface' or poly.role == 'OuterCeilingSurface'or poly.role == 'CeilingSurface'):
+        elif cosnormal<=math.cos(85 * math.pi / 180) and (poly.role == 'RoofSurface' or poly.role == 'OuterFloorSurface'or poly.role == 'FloorSurface'):
             #print calculate(poly),poly.role
             poly.set_valid(False)
             #poly.set_planar(isPolyPlanar(p_array_trans[:-1],normal))
