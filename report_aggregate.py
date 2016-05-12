@@ -1,5 +1,6 @@
 from lxml import etree
 import os
+import sys
 
 def aggregate(source_elements,xmldist):
 	#path_source = open(xmlsour).read()
@@ -24,7 +25,7 @@ def iterate_path(path):
 		for fname in filenames:
 			if fname.find('semantic')!=-1:
 				report_name = root+'/'+fname
-				if os.path.getsize(report_name)==0:
+				if len(open(report_name).readlines())<2:
 					continue
 				reports.append(root+'/'+fname)
 	#print reports
@@ -36,5 +37,5 @@ def iterate_path(path):
 	print etree.tostring(root_source,pretty_print=True)
 
 if __name__ == '__main__':
-	dirpath = 'result/DenHaag'
+	dirpath = '/home/dxin/result/'+sys.argv[1]
 	iterate_path(dirpath)
