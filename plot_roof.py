@@ -8,9 +8,11 @@ path = ''
 def main():
 	global path
 	if path == '':
-		path = os.getcwd()+'/result/DenHaag/33_buildings.semantic.report.xml'
+		path = os.getcwd()+'/result/Linz_2011/report.xml'
 	root = etree.XML(open(path).read())
-	result = root.xpath("//surface[@type='WallSurface' and validity[text()='False']]/orientation/text()")
+	print path
+	print root
+	result = root.xpath("//surface[@type='GroundSurface' and validity[text()='False']]/orientation/text()")
 	print len(result)
 	data = np.array([float(v) for v in result])
 	pl.hist(data)
