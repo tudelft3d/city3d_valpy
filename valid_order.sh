@@ -2,7 +2,7 @@
 currentpath=$(cd `dirname $0`; pwd)
 outputfile=$currentpath/result/$4/$2
 #echo $outputfile
-/Users/octeufer/Work/val3dity/val3dity $1 --oxml $outputfile
+/Users/octeufer/Work/val3dity/val3dity $1 -p MS --oxml $outputfile
 filename=${outputfile##*/}
 #echo $filename
 output=`echo "$filename"|awk -F'.' '{printf("%s.semantic.%s.%s",$1,$3,$4)}'`
