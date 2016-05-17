@@ -81,3 +81,4 @@ inputdata
 #log
 *.log
 *.out
+out*

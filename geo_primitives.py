@@ -22,14 +22,18 @@ class Polygon(object):
     def __init__(self):
         self.poslist = list()
         self.fid = list()
-        self.polyid = None
-        self.role = None
+        self.polyid = "None" 
+        self.role = "None" 
         self.valid = True
-        self.validinfo = None
-        self.orientation = None
+        self.validinfo = "None"
+        self.orientation = 360
         self.planar = True
 
     def set_role(self,role):
+	if role==None:
+		return
+	if type(role) == 'NoneType':
+		return
         self.role = role
 
     def set_poslist(self,poslist):
@@ -85,9 +89,9 @@ class Shell(object):
     
     def __init__(self):
         self.polylist = list()
-        self.shellid = None
-        self.fid = None
-        self.role = None
+        self.shellid = "None"
+        self.fid = "None"
+        self.role = "None"
 
     def add_poly(self,poly):
         self.polylist.append(poly)
@@ -105,9 +109,9 @@ class Solid(object):
 
     def __init__(self):
         self.shelllist = list()
-        self.solidid = None
-        self.fid = None
-        self.role = None
+        self.solidid = "None"
+        self.fid = "None"
+        self.role = "None"
 
     def add_shell(self,shell):
         self.shelllist.append(shell)
@@ -126,7 +130,7 @@ class Feature(object):
     def __init__(self):
         self.solids = list()
         self.surfaces = list()
-        self.fid = None
+        self.fid = "None"
 
     def add_solid(self,solid):
         self.solids.append(solid)

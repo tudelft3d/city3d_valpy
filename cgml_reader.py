@@ -82,6 +82,11 @@ def Parsing_Building(building):
     for f in building.content():
         if type(f)==citygml.building_2_0.BoundarySurfacePropertyType or type(f)==citygml.building_1_0.BoundarySurfacePropertyType:
             role = str(f.BoundarySurface._element().name().localName())
+	    if role == None or type(role) == 'NoneType':
+		role = "None"
+	    if f.BoundarySurface.id != None:
+		global b_surfaceID
+		b_surfaceID = f.BoundarySurface.id
             if f.BoundarySurface.lod2MultiSurface:
                 if f.BoundarySurface.lod2MultiSurface.MultiSurface:
                     for ms in f.BoundarySurface.lod2MultiSurface.MultiSurface.content():
@@ -139,6 +144,9 @@ def Parsing_InnerRoom(room,fid,bgobj):
     for f in room.content():
         if type(f)==citygml.building_2_0.BoundarySurfacePropertyType or type(f)==citygml.building_1_0.BoundarySurfacePropertyType:
             role = str(f.BoundarySurface._element().name().localName())
+	    if f.BoundarySurface.id != None:
+		global b_surfaceID
+		b_surfaceID = f.BoundarySurface.id
             if f.BoundarySurface.lod4MultiSurface:
             # if f.BoundarySurface.lod4MultiSurface.MultiSurface:
             #     for ms in f.BoundarySurface.lod4MultiSurface.MultiSurface.content():
@@ -204,11 +212,14 @@ def Parsing_Surface(surface,role=None,fid=None):
         return composid
     elif type(surface.Surface) == citygml._gml.PolygonType:
         polyid = surface.Surface.id
+	if polyid == None:
+		global b_surfaceID
+		polyid = b_surfaceID
         #print polyid
         if polys.has_key(polyid):
             if polys[polyid]:
-                if fid not in poly.fid:
-                    poly.add_fid(fid)
+                if fid not in polys[polyid].fid:
+                    polys[polyid].add_fid(fid)
                     return polyid
         poly = Polygon()
         #poly.poslist = list()
@@ -268,6 +279,7 @@ polys = dict()
 shells = dict()
 solids = dict()
 buildings = dict()
+b_surfaceID = "None"
 wall_count = 0
 roof_count = 0
 ground_count = 0

@@ -1,6 +1,7 @@
 #!/bin/bash
 currentpath=$(cd `dirname $0`; pwd)
-outputfile=$currentpath/../result/$4/$2
+outputfile="../result/$4/$2"
+#outputfile=../result/$4/$2
 #echo $outputfile
 /home/dxin/val3dity/val3dity $1 -p MS --oxml $outputfile
 filename=${outputfile##*/}
