@@ -5,6 +5,7 @@ import sys
 import subprocess
 import numpy as np
 from geo_primitives import *
+import semantic_check
 
 def grep(file,arg):
     process = subprocess.Popen(['grep','-c',arg,file],stdout=subprocess.PIPE)
@@ -18,7 +19,7 @@ def clear_element(elem):
 
 def parse_polygon(poly):
     global nsmap
-    global vertices
+    #global vertices
     rings = poly.getchildren()
     polyrings = []
     for ring in rings:
@@ -27,22 +28,28 @@ def parse_polygon(poly):
         if posList != None:
             pos_list = np.array(posList.text.split(),dtype=np.float64)
             pos_list = pos_list.reshape(len(pos_list)/3,3)[:-1]
-            for pos in pos_list.tolist():
-                if pos in vertices:
-                    poly_ring.append(vertices.index(pos))
-                else:
-                    poly_ring.append(len(vertices))
-                    vertices.append(pos)
+            # try:
+            #     for pos in pos_list.tolist():
+            #         if pos in vertices:
+            #             poly_ring.append(vertices.index(pos))
+            #         else:
+            #             poly_ring.append(len(vertices))
+            #             vertices.append(pos)
+            # except ValueError:
+            #     print vertices," : ",pos
+            #     return
+            poly_ring = pos_list.tolist()
         else:
             posList = ring.findall('.//{%s}pos')
             for pos_list in posList[:-1]:
                 pos = [float(v) for v in pos_list.text.split()]
-                if pos in vertices:
-                    poly_ring.append(vertices.index(pos))
-                else:
-                    poly_ring.append(len(vertices))
-                    vertices.append(pos)
-        ring_role = ring.tag[len(nsmap["gml"]):]
+                # if pos in vertices:
+                #     poly_ring.append(vertices.index(pos))
+                # else:
+                #     poly_ring.append(len(vertices))
+                #     vertices.append(pos)
+                poly_ring.append(pos)
+        ring_role = ring.tag[len(nsmap["gml"])+2:]
         if ring_role=='exterior':
             polyrings.insert(0,poly_ring)
         else:
@@ -54,20 +61,23 @@ def iter_parse(context,element):
     global nsmap
     #global vertices
     global surfaces
+    global buildings
     if element == "Building":
         countBuilding = 0
         for event,elem in context:
             if event=='end' and elem.tag == "{%s}%s" % (nsmap["bldg"],element):
+                building = Building()
                 countBuilding+=1
                 idBuilding="NULL"
                 if elem.attrib.has_key("{%s}id" % nsmap["gml"]):
                     idBuilding=elem.attrib["{%s}id" % nsmap["gml"]]
+                building.fid = idBuilding
                 #Roof=elem.findall('.//{%s}RoofSurface' % nsmap["bldg"])
                 boundedBys = elem.findall('.//{%s}boundedBy' % nsmap["bldg"])
-                if len(boundedBy)==0:continue
+                if len(boundedBys)==0:continue
                 for bB in boundedBys:
                     gm_surface=bB.getchildren()[0]
-                    role=gm_surface.tag[len(nsmap["bldg"]):]
+                    role=gm_surface.tag[len(nsmap["bldg"])+2:]
                     gm_surfaceid="NULL"
                     if gm_surface.attrib.has_key("{%s}id" % nsmap["gml"]):
                         gm_surfaceid = gm_surface.attrib["{%s}id" % nsmap["gml"]]
@@ -82,16 +92,16 @@ def iter_parse(context,element):
                         surf.polyid = polyid
                         surf.role = role
                         surfaces.append(surf)
-                '''
-                Wall=elem.findall('.//{%s}WallSurface' % nsmap["bldg"])
-                for wall in Wall:
-                    wallpolys = wall.findall('.//{%s}Polygon' % nsmap["gml"])
-                    surfaces.extend(wallpolys)
-                Ground=elem.findall('.//{%s}GroundSurface' % nsmap["bldg"])
-                for ground in Ground:
-                    groundpolys = ground.findall('.//{%s}Polygon' % nsmap["gml"])
-                    surfaces.extend(groundpolys)
-                '''
+                        building.surfaces.append(len(surfaces)-1)
+                # Wall=elem.findall('.//{%s}WallSurface' % nsmap["bldg"])
+                # for wall in Wall:
+                #     wallpolys = wall.findall('.//{%s}Polygon' % nsmap["gml"])
+                #     surfaces.extend(wallpolys)
+                # Ground=elem.findall('.//{%s}GroundSurface' % nsmap["bldg"])
+                # for ground in Ground:
+                #     groundpolys = ground.findall('.//{%s}Polygon' % nsmap["gml"])
+                #     surfaces.extend(groundpolys)
+                buildings.append(building)
                 clear_element(elem)
     return countBuilding
 
@@ -150,17 +160,21 @@ def main():
         'app' : ns_app
         }
     context = etree.iterparse(infile, events=('start','end'))
-    surfaces,count = iter_parse(context,"Building")
-    print "Surfaces: %d" % len(surfaces)
-    print "Buildings: %d" % count
+    count = iter_parse(context,"Building")
+    #global vertices
+    #vertices = np.array(vertices)
+    #print "Surfaces: %d" % len(surfaces)
+    #print "Buildings: %d" % count
     #global gses
     #gses = surfaces
+    if count>0:
+        semantic_check.val_report(buildings,surfaces,sys.argv[2])
 
 #gses=()
 nsmap={}
 vertices=[]
 surfaces=[]
-solids=[]
+buildings=[]
 
 if __name__ == "__main__":
     main()

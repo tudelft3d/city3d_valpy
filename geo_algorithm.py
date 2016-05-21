@@ -18,7 +18,7 @@ def det(a):
 
 def orient(poly):
     normal = None
-    if len(poly) < 4:
+    if len(poly) < 3:
 	return normal
     points = [poly[0],poly[1]]
     for p in poly[2:]:

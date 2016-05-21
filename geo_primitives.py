@@ -30,10 +30,10 @@ class Polygon(object):
         self.planar = True
 
     def set_role(self,role):
-	if role==None:
-		return
-	if type(role) == 'NoneType':
-		return
+        if role==None:
+            return
+        if type(role) == 'NoneType':
+            return
         self.role = role
 
     def set_poslist(self,poslist):
