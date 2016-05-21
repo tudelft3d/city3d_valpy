@@ -9,7 +9,7 @@ from geo_algorithm import *
 from geo_primitives import *
 from lxml import etree
 
-def calculate(ring):
+def calculate(poly):
     polynormal = orient(poly)
     normal = (0,0,1)
     if polynormal==None:
@@ -40,7 +40,7 @@ def semantic_val(buildings,surfaces,filterpath=None):
 
     invalid_faces = parsing_report(filterpath)
 
-    for building in buildings():
+    for building in buildings:
         count=0
         for s_id in building.surfaces:
             poly = surfaces[s_id]
@@ -111,7 +111,7 @@ def write_report(buildings,surfaces):
         #     print "miss building ID %s" % b_id
         #     continue
         # building = cgml_reader.buildings[b_id]
-        child = report_building(building,'building')
+        child = report_building(building,'building',surfaces)
         if len(child):
             root.append(child)
             # if building.invalidpolys:
@@ -194,7 +194,7 @@ def write_report(buildings,surfaces):
 
     return root
 
-def surface_node(surface):
+def surface_node(surface,surfaces):
     global invalid_wall
     global invalid_roof
     global invalid_ground
@@ -216,9 +216,7 @@ def surface_node(surface):
     global door_count
     global closure_count
 
-    global surfaces
-
-    if surface in surfaces:
+    if surface < len(surfaces):
         poly = surfaces[surface]
         child = etree.Element('surface', ID=poly.polyid, type=poly.role)
         grandchild1 = etree.Element('validity')
@@ -284,17 +282,17 @@ def surface_node(surface):
     else:
         raise ValueError('generate error,%s' % surface)
 
-def report_building(building,node_name):
+def report_building(building,node_name,surfaces):
     child = etree.Element(node_name, ID=building.fid)
     if building.buildingparts:
         for bp in building.buildingparts:
-            grandchild=report_building(cgml_reader.buildings[bp],'buildingpart')
+            grandchild=report_building(buildings[bp],'buildingpart',surfaces)
             if len(grandchild)!=0:
                 child.append(grandchild)
     else:
         #if building.invalidpolys:
         for surface in building.surfaces:
-            grandchild=surface_node(surface)
+            grandchild=surface_node(surface,surfaces)
             child.append(grandchild)    
 
     return child
@@ -324,19 +322,19 @@ invalid_interiorwall=0
 inputfile=None
 
 
-buildings=list()
-surfaces=list()
+# buildings=list()
+# surfaces=list()
 # if len(sys.argv)>3:
 #     tolerance = int(sys.argv[2])
 # else:
 #     tolerance = 5.0
 def val_report(gm_buildings,gm_surfaces,path):
-    global buildings
-    global surfaces
-    buildings=gm_buildings
-    surfaces=gm_surfaces
-    semantic_val(buildings,surfaces,path)
-    root = write_report(buildings,surfaces)
+    # global buildings
+    # global surfaces
+    # buildings=gm_buildings
+    # surfaces=gm_surfaces
+    semantic_val(gm_buildings,gm_surfaces,path)
+    root = write_report(gm_buildings,gm_surfaces)
     print etree.tostring(root,pretty_print=True)
 
 if __name__ == "__main__":
