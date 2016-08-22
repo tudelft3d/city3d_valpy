@@ -116,9 +116,9 @@ def write_report(buildings,surfaces):
             root.append(child)
             # if building.invalidpolys:
             #     invalid_building+=1
-    infile_node = etree.Element('inputfile')
-    infile_node.text = inputfile
-    root.append(infile_node)
+    #infile_node = etree.Element('inputfile')
+    #infile_node.text = inputfile
+    #root.append(infile_node)
     # tolerance_node = etree.Element('tolerance')
     # tolerance_node.text = str(tolerance)
     # root.append(tolerance_node)
